@@ -1,5 +1,7 @@
 import { joinParty } from "@/app/actions/party";
 import { GoogleButton } from "@/components/GoogleButton";
+import { NameSignIn } from "@/components/NameSignIn";
+import { googleSignInEnabled } from "@/lib/sign-in-options";
 import { Notice } from "@/components/Notice";
 import { Shell } from "@/components/Shell";
 import { getUserId } from "@/lib/auth";
@@ -39,8 +41,12 @@ export default async function JoinPage({ params, searchParams }: Props) {
               </form>
             ) : (
               <>
-                <GoogleButton next={`/join/${encodeURIComponent(code)}`} />
-                <p className="mt-3 text-sm text-gray-600">You'll come straight back here after signing in.</p>
+                <NameSignIn joinCode={code} button="🎄 Join the party" />
+                {googleSignInEnabled ? (
+                  <div className="mt-4">
+                    <GoogleButton next={`/join/${encodeURIComponent(code)}`} />
+                  </div>
+                ) : null}
               </>
             )}
           </div>

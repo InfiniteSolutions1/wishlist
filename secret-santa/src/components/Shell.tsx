@@ -17,11 +17,6 @@ export function Shell({ children, signedIn = true }: { children: ReactNode; sign
             <Link href="/me" className="underline-offset-4 hover:underline">
               My wishlist
             </Link>
-            <form action="/auth/signout" method="post">
-              <button type="submit" className="cursor-pointer underline-offset-4 hover:underline">
-                Sign out
-              </button>
-            </form>
           </div>
         </nav>
       ) : null}

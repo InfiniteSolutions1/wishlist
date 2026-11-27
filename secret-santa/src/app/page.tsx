@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createParty } from "@/app/actions/party";
 import { GoogleButton } from "@/components/GoogleButton";
+import { NameSignIn } from "@/components/NameSignIn";
+import { googleSignInEnabled } from "@/lib/sign-in-options";
 import { Notice } from "@/components/Notice";
 import { Shell } from "@/components/Shell";
 import { getUserId } from "@/lib/auth";
@@ -32,9 +34,14 @@ export default async function Home({ searchParams }: { searchParams: Search }) {
           <li>🎲 One button decides who buys for whom</li>
           <li>🤫 Only you can see who you got</li>
         </ul>
-        <GoogleButton next={safeNext(next)} />
+        <NameSignIn next={safeNext(next)} button="🎄 Get started" />
+        {googleSignInEnabled ? (
+          <div className="mt-4">
+            <GoogleButton next={safeNext(next)} />
+          </div>
+        ) : null}
         <p className="mt-4 text-center text-sm text-gray-600">
-          Got an invite link? Open it and you'll join that party after signing in.
+          Got an invite link? Open that instead and you'll go straight into the party.
         </p>
       </Shell>
     );

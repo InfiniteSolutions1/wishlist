@@ -82,14 +82,17 @@ afterAll(async () => {
   }
 });
 
-test("a signed-out visitor sees the welcome page with the Google button", async () => {
+test("a new visitor only has to type their name to get started", async () => {
   const page = await (await browser.newContext()).newPage();
-  await page.goto(APP);
-  await expect.poll(() => page.getByRole("heading", { name: "Secret Santa" }).isVisible()).toBe(true);
-  expect(await page.getByRole("button", { name: "Continue with Google" }).isVisible()).toBe(true);
   await page.goto(`${APP}/me`);
   expect(new URL(page.url()).pathname).toBe("/");
   expect(new URL(page.url()).searchParams.get("next")).toBe("/me");
+  expect(await page.getByRole("button", { name: "Continue with Google" }).count()).toBe(0);
+
+  await page.getByLabel("Your name").fill("Grandpa Joe");
+  await page.getByRole("button", { name: /Get started/ }).click();
+  await page.waitForURL((url) => url.pathname === "/me");
+  expect(await page.getByLabel("My name").inputValue()).toBe("Grandpa Joe");
 });
 
 test("the organizer starts a party and gets an invite link", async () => {
@@ -104,21 +107,12 @@ test("the organizer starts a party and gets an invite link", async () => {
   expect(inviteLink).toMatch(/^http:\/\/127\.0\.0\.1:3000\/join\/[0-9a-f]{32}$/);
 });
 
-test("a signed-out visitor opening the invite sees the party and is sent back to it after sign-in", async () => {
+test("a signed-out visitor opening the invite sees who invited them and a name box", async () => {
   const page = await (await browser.newContext()).newPage();
   await page.goto(inviteLink);
   expect(await page.getByRole("heading", { name: "Family Christmas" }).isVisible()).toBe(true);
   expect(await page.getByText("Olive Organizer invited you to").isVisible()).toBe(true);
-
-  const [request] = await Promise.all([
-    page.waitForRequest((r) => r.url().includes("/auth/v1/authorize")),
-    page.getByRole("button", { name: "Continue with Google" }).click(),
-  ]);
-  const authorize = new URL(request.url());
-  expect(authorize.searchParams.get("provider")).toBe("google");
-  const redirectTo = new URL(authorize.searchParams.get("redirect_to")!);
-  expect(redirectTo.pathname).toBe("/auth/callback");
-  expect(redirectTo.searchParams.get("next")).toBe(new URL(inviteLink).pathname);
+  expect(await page.getByLabel("Your name").isVisible()).toBe(true);
 });
 
 test("a wrong invite link says it is no longer valid", async () => {
@@ -310,6 +304,43 @@ test("rules that leave no possible draw are refused and the old matches stay", a
   // Eve is unticked but still in the current draw: the page says so, and does not offer to "include" her.
   expect(await page.getByText(/Unticked but still in the current draw: Eve Late/).isVisible()).toBe(true);
   expect(await page.getByText(/Not in this draw: Eve Late/).count()).toBe(0);
+});
+
+test("a family member joins with just the link and their name, and stays signed in", async () => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  page.on("dialog", (dialog) => void dialog.accept());
+  await page.goto(inviteLink);
+  await page.getByLabel("Your name").fill("Nana Rose");
+  await page.getByRole("button", { name: /Join the party/ }).click();
+  await page.waitForURL(new RegExp(`/party/${partyId}$`));
+  expect(await page.getByText("Nana Rose (you)").isVisible()).toBe(true);
+  expect(await page.getByText("You're not in this draw yet — ask your organizer.").isVisible()).toBe(true);
+
+  // Still signed in on a fresh visit from the same device.
+  const again = await context.newPage();
+  await again.goto(`${APP}/me`);
+  expect(await again.getByLabel("My name").inputValue()).toBe("Nana Rose");
+
+  // The organizer sees her and can include her with a redraw.
+  await people.Olive.page.goto(`${APP}/party/${partyId}/manage`);
+  expect(await people.Olive.page.getByText(/Not in this draw: Nana Rose/).isVisible()).toBe(true);
+
+  // Signing out on a name-only account warns first, then really signs out.
+  await again.on("dialog", (dialog) => void dialog.accept());
+  await again.getByRole("button", { name: "Sign out" }).click();
+  await again.waitForURL((url) => url.pathname === "/");
+  expect(await again.getByLabel("Your name").isVisible()).toBe(true);
+});
+
+test("a blank name is not accepted", async () => {
+  const page = await (await browser.newContext()).newPage();
+  await page.goto(inviteLink);
+  await page.getByLabel("Your name").fill("   ");
+  await page.getByRole("button", { name: /Join the party/ }).click();
+  await page.waitForTimeout(800);
+  expect(new URL(page.url()).pathname).toBe(new URL(inviteLink).pathname);
+  expect(await page.getByLabel("Your name").isVisible()).toBe(true);
 });
 
 test("deleting an account removes the person and their data", async () => {

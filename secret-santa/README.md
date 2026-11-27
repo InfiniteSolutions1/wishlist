@@ -2,7 +2,7 @@
 
 Your own Secret Santa app.
 
-- **Join with Google** through an invite link the organizer shares.
+- **Join with a link and your name.** No password. Google sign-in is optional.
 - **Profile pictures**, taken from Google or uploaded.
 - **Wishlists** where every wish can link to the real product.
 - **Compare prices** link on every wish (opens a shopping search).
@@ -19,13 +19,22 @@ Built with Next.js (hosted on Vercel) and Supabase (database, Google sign-in, pi
 2. Run the three files in `supabase/migrations/` in order (SQL editor, or `npx supabase db push` after `npx supabase link`).
 3. From **Project Settings → API Keys**, note the project URL, the **publishable** key and the **secret** key.
 
-### 2. Google sign-in
+### 2. Sign-in
+
+People join by opening the invite link and typing their name. There is no password and no email.
+
+1. In Supabase open **Authentication → Sign In / Providers** and switch on **Allow anonymous sign-ins**.
+2. In **Authentication → URL Configuration**, set **Site URL** to your site address.
+
+Good to know: a person stays signed in on the phone or computer they joined from. If they clear their browser or switch device they join again as a new person, and the organizer removes the old one.
+
+**Optional: add "Continue with Google"** so people can sign in on any device.
 
 1. In [Google Cloud Console](https://console.cloud.google.com/) create a project, then **APIs & Services → Credentials → Create credentials → OAuth client ID → Web application**.
 2. Under **Authorised redirect URIs** add `https://YOUR-PROJECT.supabase.co/auth/v1/callback`.
 3. Copy the client ID and client secret into Supabase: **Authentication → Sign In / Providers → Google**, and switch it on.
-4. Still under **Sign In / Providers**, switch the **Email** provider off, so Google is the only way in.
-5. In Supabase **Authentication → URL Configuration**, set **Site URL** to your site address and add `https://YOUR-SITE/auth/callback` to **Redirect URLs** (add `http://localhost:3000/auth/callback` for local work).
+4. Add `https://YOUR-SITE/auth/callback` to Supabase's **Redirect URLs**.
+5. Set `NEXT_PUBLIC_GOOGLE_SIGNIN=on` in Vercel and redeploy.
 
 ### 3. Vercel
 
@@ -39,7 +48,7 @@ Built with Next.js (hosted on Vercel) and Supabase (database, Google sign-in, pi
 ## Running a Secret Santa
 
 1. Sign in, start a party, and send the invite link from **Manage party** to everyone.
-2. Each person signs in with Google, joins, and fills in their wishlist.
+2. Each person opens the link, types their name, and fills in their wishlist.
 3. Add any couples under **Keep apart**, then press **Draw names**.
 4. Everyone opens the party and taps to reveal who they are buying for.
 

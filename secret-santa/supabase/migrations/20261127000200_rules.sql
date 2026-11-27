@@ -48,9 +48,15 @@ to authenticated, service_role;
 -- Table permissions: start from nothing, then allow exactly what is needed.
 -- ---------------------------------------------------------------------------
 
-revoke all on all tables in schema public from anon, authenticated;
-grant all on all tables in schema public to service_role;
-grant all on private.party_invites to service_role;
+-- Only this app's own tables are named, so the app can share a project with others.
+revoke all on
+  public.profiles, public.parties, public.party_members, public.exclusions,
+  public.wishes, public.draw_participants, public.assignments
+from anon, authenticated;
+grant all on
+  public.profiles, public.parties, public.party_members, public.exclusions,
+  public.wishes, public.draw_participants, public.assignments, private.party_invites
+to service_role;
 
 grant select on public.profiles to authenticated;
 grant update (display_name, avatar_path) on public.profiles to authenticated;
@@ -330,7 +336,18 @@ begin
 end
 $$;
 
-revoke execute on all functions in schema public from public, anon, authenticated;
+revoke execute on function
+  public.handle_new_user(),
+  public.handle_new_party(),
+  public.note_pairs_changed(),
+  public.limit_wishes(),
+  public.invite_preview(text),
+  public.join_party(text),
+  public.party_invite_code(uuid),
+  public.reset_invite_code(uuid),
+  public.draw_status(uuid),
+  public.replace_assignments(uuid, jsonb)
+from public, anon, authenticated;
 grant execute on function public.invite_preview(text) to anon, authenticated, service_role;
 grant execute on function
   public.join_party(text),

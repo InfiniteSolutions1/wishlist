@@ -81,7 +81,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
         <h2 id="invite-heading" className="text-2xl font-bold">
           1. Invite people
         </h2>
-        <p className="mt-1 text-gray-700">Send this link to everyone. They open it, continue with Google, tap Join, and they're in.</p>
+        <p className="mt-1 text-gray-700">Send this link to everyone. They open it, type their name, and they're in.</p>
         <p className="mt-3 rounded-lg border-2 border-gray-200 bg-gray-50 p-3 font-mono text-sm break-all">{inviteLink}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <CopyButton value={inviteLink} />

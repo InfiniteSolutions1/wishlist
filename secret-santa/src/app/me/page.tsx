@@ -113,7 +113,25 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
         </form>
       </section>
 
-      <section className="mt-12 border-t-2 border-gray-200 pt-6" aria-labelledby="delete-heading">
+      <section className="mt-12 border-t-2 border-gray-200 pt-6" aria-labelledby="signout-heading">
+        <h2 id="signout-heading" className="text-xl font-bold">
+          Sign out
+        </h2>
+        <p className="mt-1 text-gray-700">
+          If you joined with just your name, this phone or computer is your key. Signing out means you can't get back to
+          your wishlist or your match.
+        </p>
+        <form action="/auth/signout" method="post" className="mt-3">
+          <ConfirmButton
+            question="Sign out? If you joined with just your name, you won't be able to get back to your wishlist or your match."
+            className="btn-quiet"
+          >
+            Sign out
+          </ConfirmButton>
+        </form>
+      </section>
+
+      <section className="mt-8 border-t-2 border-gray-200 pt-6" aria-labelledby="delete-heading">
         <h2 id="delete-heading" className="text-xl font-bold">
           Delete my account
         </h2>
