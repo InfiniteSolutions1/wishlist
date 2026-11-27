@@ -166,6 +166,12 @@ declare
   meta jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
   picture text := coalesce(meta ->> 'avatar_url', meta ->> 'picture');
 begin
+  -- Sign-up details can be set by the person signing up, so a picture address is
+  -- only trusted when the sign-up really came through Google.
+  if coalesce(new.raw_app_meta_data ->> 'provider', '') <> 'google' then
+    picture := null;
+  end if;
+
   insert into public.profiles (id, display_name, google_avatar_url)
   values (
     new.id,

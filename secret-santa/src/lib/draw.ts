@@ -72,3 +72,20 @@ export function drawNames(
   if (!search(0)) throw new DrawError("IMPOSSIBLE");
   return order.map((giverId, i) => ({ giverId, receiverId: chosen[i] }));
 }
+
+/**
+ * Turn the rows read from the database into what `drawNames` needs.
+ * Returns null if either read failed, so a draw never runs without its keep-apart rules.
+ */
+export function drawInput(
+  members: { user_id: string }[] | null,
+  exclusions: { user_a: string; user_b: string }[] | null,
+): { ids: string[]; pairs: [string, string][] } | null {
+  if (!members || !exclusions) return null;
+  const ids = members.map((m) => m.user_id);
+  const inDraw = new Set(ids);
+  const pairs = exclusions
+    .filter((e) => inDraw.has(e.user_a) && inDraw.has(e.user_b))
+    .map((e) => [e.user_a, e.user_b] as [string, string]);
+  return { ids, pairs };
+}

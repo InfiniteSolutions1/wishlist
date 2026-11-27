@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { drawNames, DrawError } from "@/lib/draw";
+import { drawInput, drawNames, DrawError } from "@/lib/draw";
 
 const ids = (n: number) => Array.from({ length: n }, (_, i) => `p${i}`);
 const sorted = (xs: string[]) => [...xs].sort();
@@ -65,4 +65,17 @@ test("a hard but possible set of rules is still solved", () => {
 test("the same random source gives the same draw", () => {
   const fixed = () => 0;
   expect(drawNames(ids(6), [], fixed)).toEqual(drawNames(ids(6), [], fixed));
+});
+
+test("draw input uses only people who are in, and only pairs between them", () => {
+  const input = drawInput(
+    [{ user_id: "a" }, { user_id: "b" }, { user_id: "c" }],
+    [{ user_a: "a", user_b: "b" }, { user_a: "a", user_b: "gone" }],
+  );
+  expect(input).toEqual({ ids: ["a", "b", "c"], pairs: [["a", "b"]] });
+});
+
+test("if the members or the keep-apart pairs could not be loaded, there is no draw", () => {
+  expect(drawInput(null, [])).toBeNull();
+  expect(drawInput([{ user_id: "a" }], null)).toBeNull();
 });

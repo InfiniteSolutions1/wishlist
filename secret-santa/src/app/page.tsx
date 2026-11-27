@@ -8,6 +8,9 @@ import { safeNext } from "@/lib/safe-next";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Party } from "@/lib/types";
 
+/** The house rule, filled in for every new party. The organizer can change it. */
+const DEFAULT_BUDGET = "$50 gift minimum - spend more if you wish";
+
 type Search = Promise<{ next?: string; notice?: string }>;
 
 export default async function Home({ searchParams }: { searchParams: Search }) {
@@ -87,7 +90,7 @@ export default async function Home({ searchParams }: { searchParams: Search }) {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block font-bold">
               Budget <span className="font-normal text-gray-600">(optional)</span>
-              <input name="budget" maxLength={40} className="input-christmas mt-1 font-normal" placeholder="$25 per gift" />
+              <input name="budget" maxLength={80} defaultValue={DEFAULT_BUDGET} className="input-christmas mt-1 font-normal" />
             </label>
             <label className="block font-bold">
               Gift exchange date <span className="font-normal text-gray-600">(optional)</span>

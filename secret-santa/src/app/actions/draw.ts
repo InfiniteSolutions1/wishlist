@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { DrawError, drawNames } from "@/lib/draw";
+import { DrawError, drawInput, drawNames } from "@/lib/draw";
 import { backWith, isUuid } from "@/lib/notice";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@/lib/supabase/server";
@@ -23,11 +23,9 @@ export async function runDraw(form: FormData) {
     supabase.from("exclusions").select("user_a, user_b").eq("party_id", partyId),
   ]);
 
-  const ids = (members ?? []).map((m) => m.user_id as string);
-  const inDraw = new Set(ids);
-  const pairs = (exclusions ?? [])
-    .filter((e) => inDraw.has(e.user_a) && inDraw.has(e.user_b))
-    .map((e) => [e.user_a, e.user_b] as [string, string]);
+  const input = drawInput(members, exclusions);
+  if (!input) backWith(manage, "Couldn't load the party. Please try again.");
+  const { ids, pairs } = input!;
 
   let result;
   try {

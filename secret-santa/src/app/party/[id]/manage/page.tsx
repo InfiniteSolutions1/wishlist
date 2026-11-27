@@ -10,7 +10,7 @@ import { InDrawCheckbox } from "@/components/InDrawCheckbox";
 import { Notice } from "@/components/Notice";
 import { Shell } from "@/components/Shell";
 import { requireUser } from "@/lib/auth";
-import { drawHealth } from "@/lib/draw-state";
+import { drawChanges, drawHealth } from "@/lib/draw-state";
 import { isUuid } from "@/lib/notice";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Party, Profile } from "@/lib/types";
@@ -57,7 +57,10 @@ export default async function ManagePage({ params, searchParams }: Props) {
   const status = (statusRows as { participants: number; matches: number }[] | null)?.[0] ?? { participants: 0, matches: 0 };
   const health = drawHealth(status);
   const inDrawCount = people.filter((p) => p.in_draw).length;
-  const notInDraw = party.drawn_at ? people.filter((p) => !participants.has(p.user_id)) : [];
+  const changes = party.drawn_at
+    ? drawChanges(people.map((p) => ({ id: p.user_id, inDraw: p.in_draw })), participants)
+    : { waiting: [], tickedOut: [] };
+  const names = (ids: string[]) => ids.map((personId) => profiles.get(personId)?.display_name ?? "Someone").join(", ");
 
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "";
@@ -78,7 +81,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
         <h2 id="invite-heading" className="text-2xl font-bold">
           1. Invite people
         </h2>
-        <p className="mt-1 text-gray-700">Send this link to everyone. They tap it, continue with Google, and they're in.</p>
+        <p className="mt-1 text-gray-700">Send this link to everyone. They open it, continue with Google, tap Join, and they're in.</p>
         <p className="mt-3 rounded-lg border-2 border-gray-200 bg-gray-50 p-3 font-mono text-sm break-all">{inviteLink}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <CopyButton value={inviteLink} />
@@ -110,7 +113,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
                   <input type="hidden" name="partyId" value={id} />
                   <input type="hidden" name="userId" value={person.user_id} />
                   <ConfirmButton
-                    question={`Remove ${person.profile.display_name} from the party? If names are drawn you will need to redraw.`}
+                    question={`Remove ${person.profile.display_name} from the party? They can rejoin with the invite link unless you reset it. If names are drawn you will need to redraw.`}
                     className="btn-quiet btn-danger"
                   >
                     Remove
@@ -183,8 +186,9 @@ export default async function ManagePage({ params, searchParams }: Props) {
         <ul className="mt-2 space-y-1 font-semibold text-amber-900">
           {health === "incomplete" ? <li>⚠️ The draw is no longer complete. Redraw so everyone has a match.</li> : null}
           {party.drawn_at && party.pairs_changed_at ? <li>⚠️ Keep-apart pairs changed. Redraw to apply.</li> : null}
-          {notInDraw.length ? (
-            <li>Not in this draw: {notInDraw.map((p) => p.profile.display_name).join(", ")}. Redraw to include them.</li>
+          {changes.waiting.length ? <li>Not in this draw: {names(changes.waiting)}. Redraw to include them.</li> : null}
+          {changes.tickedOut.length ? (
+            <li>⚠️ Unticked but still in the current draw: {names(changes.tickedOut)}. Redraw to apply.</li>
           ) : null}
           {inDrawCount < 5 ? <li className="font-normal text-gray-700">With few people or many couples, matches are easier to guess.</li> : null}
         </ul>
@@ -215,7 +219,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block font-bold">
               Budget
-              <input name="budget" maxLength={40} defaultValue={party.budget ?? ""} className="input-christmas mt-1 font-normal" />
+              <input name="budget" maxLength={80} defaultValue={party.budget ?? ""} className="input-christmas mt-1 font-normal" />
             </label>
             <label className="block font-bold">
               Gift exchange date

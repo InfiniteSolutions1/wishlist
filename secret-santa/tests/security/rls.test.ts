@@ -18,6 +18,18 @@ test("signing up creates a profile from the Google name and picture", async () =
   expect(rows).toEqual([{ display_name: "Sam Rivera", google_avatar_url: `https://pics.example.test/${U2}.jpg` }]);
 });
 
+test("a picture address is only trusted when the sign-up came from Google", async () => {
+  const id = "00000000-0000-4000-8000-0000000000aa";
+  await pool.query("insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data) values ($1, 'pw@example.test', $2, $3)", [
+    id,
+    { full_name: "Password Pat", avatar_url: "https://tracker.example/pixel.png" },
+    { provider: "email" },
+  ]);
+  const { rows } = await pool.query("select display_name, google_avatar_url from public.profiles where id = $1", [id]);
+  expect(rows).toEqual([{ display_name: "Password Pat", google_avatar_url: null }]);
+  await pool.query("delete from auth.users where id = $1", [id]);
+});
+
 test("each person reads exactly one match: their own", async () => {
   for (const [user, receiver] of [[U1, U2], [U2, U3], [U3, U1]]) {
     const rows = await as(user, (run) => run("select giver_id, receiver_id from public.assignments"));

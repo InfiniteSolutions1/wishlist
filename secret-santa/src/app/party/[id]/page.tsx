@@ -48,7 +48,7 @@ export default async function PartyPage({ params, searchParams }: Props) {
 
   const state = revealState({ drawnAt: party.drawn_at, isParticipant: Boolean(participant), hasMatch: Boolean(receiver) });
   const isOwner = party.owner_id === user.id;
-  const details = [party.budget ? `Budget ${party.budget}` : null, party.exchange_date ? formatDate(party.exchange_date) : null]
+  const details = [party.budget ? `Budget: ${party.budget}` : null, party.exchange_date ? formatDate(party.exchange_date) : null]
     .filter(Boolean)
     .join(" · ");
 

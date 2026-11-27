@@ -22,10 +22,11 @@ export async function resetDb() {
   }
   const people: [string, string][] = [[U1, "Olive Organizer"], [U2, "Sam Rivera"], [U3, "Alex Kim"], [U4, "Stranger Dan"], [U5, "Eve Late"]];
   for (const [id, name] of people) {
-    await pool.query("insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3)", [
+    await pool.query("insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data) values ($1, $2, $3, $4)", [
       id,
       `${id}@example.test`,
       { full_name: name, avatar_url: `https://pics.example.test/${id}.jpg` },
+      { provider: "google" },
     ]);
   }
 }

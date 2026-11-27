@@ -16,7 +16,7 @@ create table public.parties (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(name) between 1 and 80),
   owner_id uuid not null references public.profiles (id) on delete cascade,
-  budget text check (char_length(budget) <= 40),
+  budget text check (char_length(budget) <= 80),
   exchange_date date,
   note text check (char_length(note) <= 500),
   drawn_at timestamptz,

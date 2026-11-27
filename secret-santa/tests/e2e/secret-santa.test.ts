@@ -96,7 +96,7 @@ test("the organizer starts a party and gets an invite link", async () => {
   const { page } = people.Olive;
   await page.goto(APP);
   await page.getByLabel("Party name").fill("Family Christmas");
-  await page.getByLabel(/Budget/).fill("$25");
+  expect(await page.getByLabel(/Budget/).inputValue()).toBe("$50 gift minimum - spend more if you wish");
   await page.getByRole("button", { name: /Start the party/ }).click();
   await page.waitForURL(/\/party\/[0-9a-f-]{36}\/manage/);
   partyId = page.url().split("/party/")[1].split("/")[0];
@@ -134,6 +134,7 @@ test("three people join with the link", async () => {
     await page.getByRole("button", { name: /Join the party/ }).click();
     await page.waitForURL(new RegExp(`/party/${partyId}$`));
     expect(await page.getByText("Names haven't been drawn yet.").isVisible()).toBe(true);
+    expect(await page.getByText("Budget: $50 gift minimum - spend more if you wish").isVisible()).toBe(true);
   }
   await people.Olive.page.goto(`${APP}/party/${partyId}`);
   expect(await people.Olive.page.getByRole("heading", { name: "Everyone (4)" }).isVisible()).toBe(true);
@@ -306,6 +307,9 @@ test("rules that leave no possible draw are refused and the old matches stay", a
   await page.getByRole("button", { name: /Redraw/ }).click();
   await expect.poll(() => notice(page).innerText()).toContain("These rules leave no possible draw — remove a pair or add people.");
   expect((await api.from("assignments").select("receiver_id")).data).toEqual(before);
+  // Eve is unticked but still in the current draw: the page says so, and does not offer to "include" her.
+  expect(await page.getByText(/Unticked but still in the current draw: Eve Late/).isVisible()).toBe(true);
+  expect(await page.getByText(/Not in this draw: Eve Late/).count()).toBe(0);
 });
 
 test("deleting an account removes the person and their data", async () => {

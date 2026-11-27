@@ -17,6 +17,13 @@ test("the person who starts a party becomes its first member", async () => {
   expect(await memberIds()).toEqual([U1, U2, U3]);
 });
 
+test("the budget can be a full sentence", async () => {
+  const budget = "$50 gift minimum - spend more if you wish";
+  const rows = await as(U1, (run) => run("update public.parties set budget = $2 where id = $1 returning budget", [partyId, budget]));
+  expect(rows).toEqual([{ budget }]);
+  await expect(as(U1, (run) => run("update public.parties set budget = $2 where id = $1", [partyId, "x".repeat(81)]))).rejects.toThrow(/check constraint/);
+});
+
 test("a party cannot be created in someone else's name", async () => {
   await expect(as(U2, (run) => run("insert into public.parties (name, owner_id) values ('x', $1)", [U1]))).rejects.toThrow(/row-level security/);
 });

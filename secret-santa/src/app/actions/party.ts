@@ -12,7 +12,7 @@ function partyFields(form: FormData) {
   const date = text(form, "exchangeDate", 10);
   return {
     name: text(form, "name", 80),
-    budget: optional(form, "budget", 40),
+    budget: optional(form, "budget", 80),
     exchange_date: DATE.test(date) ? date : null,
     note: optional(form, "note", 500),
   };

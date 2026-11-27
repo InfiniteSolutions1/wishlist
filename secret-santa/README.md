@@ -24,7 +24,8 @@ Built with Next.js (hosted on Vercel) and Supabase (database, Google sign-in, pi
 1. In [Google Cloud Console](https://console.cloud.google.com/) create a project, then **APIs & Services → Credentials → Create credentials → OAuth client ID → Web application**.
 2. Under **Authorised redirect URIs** add `https://YOUR-PROJECT.supabase.co/auth/v1/callback`.
 3. Copy the client ID and client secret into Supabase: **Authentication → Sign In / Providers → Google**, and switch it on.
-4. In Supabase **Authentication → URL Configuration**, set **Site URL** to your site address and add `https://YOUR-SITE/auth/callback` to **Redirect URLs** (add `http://localhost:3000/auth/callback` for local work).
+4. Still under **Sign In / Providers**, switch the **Email** provider off, so Google is the only way in.
+5. In Supabase **Authentication → URL Configuration**, set **Site URL** to your site address and add `https://YOUR-SITE/auth/callback` to **Redirect URLs** (add `http://localhost:3000/auth/callback` for local work).
 
 ### 3. Vercel
 
