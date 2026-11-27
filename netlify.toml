@@ -1,0 +1,12 @@
+# Tells Netlify to build the Secret Santa app, which lives in the secret-santa folder.
+[build]
+  base = "secret-santa"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # These two are public values, safe to keep here. The secret key is NOT here:
+  # it is set by hand in Netlify (Project configuration -> Environment variables).
+  NEXT_PUBLIC_SUPABASE_URL = "https://jbuehusdbzovnzzepfjr.supabase.co"
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Xbvz2knqOgre68EAYcwVIA_k0ojelly"
