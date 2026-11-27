@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run tests/unit",
-    "test:security": "vitest run tests/security --no-file-parallelism"
+    "test:security": "vitest run tests/security --no-file-parallelism",
+    "test:e2e": "vitest run tests/e2e --no-file-parallelism"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -27,6 +28,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "pg": "8.23.1",
+    "playwright": "1.63.0",
+    "supabase": "3.4.0",
     "tailwindcss": "4.3.3",
     "typescript": "^5",
     "vitest": "5.1.2"

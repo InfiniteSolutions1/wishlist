@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
+// Every page here is personal to the signed-in visitor, so nothing is cached between people.
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
   turbopack: {
     rules: {
       "*.css": {

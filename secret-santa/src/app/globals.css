@@ -1,26 +1,141 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Festive look adapted from richard1912/SecretSanta (MIT):
+ * night-blue background, white card with a red border, red buttons and falling snow.
+ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-christmas), cursive;
+  --color-santa: #c41e3a;
+  --color-santa-dark: #8b0000;
+  --color-pine: #1f6b45;
+  --color-night: #0f4c75;
+  --color-night-deep: #1e3a5f;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: #0f4c75;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg, #0f4c75 0%, #1e3a5f 50%, #0f4c75 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: #1f2937;
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.christmas-font {
+  font-family: var(--font-display);
+}
+
+.christmas-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 3px solid var(--color-santa);
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.btn-christmas {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+  color: white;
+  padding: 0.7rem 1.4rem;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-christmas:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(196, 30, 58, 0.3);
+}
+.btn-christmas:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+.btn-quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-quiet:hover {
+  border-color: var(--color-santa);
+  color: var(--color-santa-dark);
+}
+
+.btn-danger {
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.input-christmas {
+  width: 100%;
+  border: 2px solid var(--color-santa);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  background: white;
+  font-size: 1rem; /* stops phones zooming in on focus */
+}
+.input-christmas:focus {
+  border-color: var(--color-santa-dark);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.15);
+}
+
+.link {
+  color: var(--color-santa-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 2px;
+}
+
+.snow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.snowflake {
+  position: absolute;
+  top: -20px;
+  color: white;
+  user-select: none;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  to {
+    transform: translateY(105vh) rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .snow {
+    display: none;
+  }
+  .btn-christmas,
+  .btn-christmas:hover {
+    transition: none;
+    transform: none;
+  }
 }
